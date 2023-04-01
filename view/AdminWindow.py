@@ -72,6 +72,8 @@ class AdminWindow:
         create_items["justify"] = "center"
         create_items.place(x=20, y=190, width=246, height=176)
         create_items.bind('<<ListboxSelect>>', self.create_items_select)
+
+        # Get ingredient list and add into listbox
         self.ingredients = IngredientService().get_ingredients()
         for i in self.ingredients:
             create_items.insert("end", i.name)
@@ -84,6 +86,8 @@ class AdminWindow:
         edit_dishes["justify"] = "center"
         edit_dishes.place(x=310, y=140, width=267, height=322)
         edit_dishes.bind('<<ListboxSelect>>', self.edit_dish_select)
+
+        # Get dishes list and add into listbox
         self.dishes = OrderService().get_dishes()
         self.edit_dishes = edit_dishes
         for dish in self.dishes:
@@ -99,13 +103,19 @@ class AdminWindow:
         self.price_text = price_text
 
     def create_dish(self):
+        """
+        Proccess button click to create a new dish
+        :return:
+        """
         try:
+            # Get data from input fields
             name = self.name_input.get()
             dish = Dish(name, self.selected_ingredients)
             DishRepository().create(dish)
             messagebox.showinfo("Success", "Your dish was created!")
             self.dishes.append(dish)
             price = 0
+            # Calculate price and output in label
             for ing in dish.ingredients:
                 price += round((ing.price * ing.count / 1000) * (100 + OrderService.MARKUP) / 100)
             self.edit_dishes.insert("end", dish.name + " " + str(price) + " UAH")
@@ -113,6 +123,10 @@ class AdminWindow:
             messagebox.showerror("Error", str(ex))
 
     def show_main_window(self):
+        """
+        Open Main Window
+        :return:
+        """
         from view.MainWindow import MainWindow
 
         self.root.destroy()  # close the current window
@@ -121,6 +135,11 @@ class AdminWindow:
         self.root.mainloop()
 
     def create_items_select(self, event):
+        """
+        Listbox select trigger, calculating price of a dish
+        :param event:
+        :return:
+        """
         w = event.widget
         price = 0
         self.selected_ingredients = []
@@ -132,10 +151,15 @@ class AdminWindow:
         self.price_text["text"] = "Price: " + str(price) + " UAH"
 
     def edit_dish_select(self, event):
+        """
+        Listbox event trigger, open update window
+        :param event:
+        :return:
+        """
         w = event.widget
         try:
             dish = self.dishes[w.curselection()[0]]
-            self.lastDishIdx = w.curselection()[0];
+            self.lastDishIdx = w.curselection()[0]
             self.update_dish = dish
         except:
             return
@@ -189,9 +213,13 @@ class AdminWindow:
         update_create_items["justify"] = "center"
         update_create_items.place(x=20, y=90, width=246, height=176)
         update_create_items.bind('<<ListboxSelect>>', self.update_items_select)
+
+        # Insert ingredients in listbox
         self.update_ingredients = IngredientService().get_ingredients()
         for i in self.ingredients:
             update_create_items.insert("end", i.name)
+
+        # Select ingredients which used in dish
         for ing, count in dish.ingredients:
             for i in self.ingredients:
                 if i.name == ing.name:
@@ -210,15 +238,23 @@ class AdminWindow:
         self.update_price_text = price_text
 
     def change_dish(self):
+        """
+        Process button click to update the dish
+        :return:
+        """
         try:
+            # Get data from input fields
             self.dishes.remove(self.update_dish)
             self.update_dish.name = self.update_name_input.get()
             self.update_dish.ingredients = self.update_selected_ingredients
+            # Update dish in database
             DishRepository().update(self.update_dish)
             messagebox.showinfo("Success", "Your dish was updated!")
             price = 0
             for ing in self.update_dish.ingredients:
                 price += round((ing.price * ing.count / 1000) * (100 + OrderService.MARKUP) / 100)
+
+            # Update dish in listbox
             self.edit_dishes.delete(self.lastDishIdx)
             self.edit_dishes.insert("end", self.update_dish.name + " " + str(price) + " UAH")
             self.root.destroy()  # close the current window
@@ -229,21 +265,34 @@ class AdminWindow:
             messagebox.showerror("Error", str(ex))
 
     def delete_dish(self):
+        """
+        Process button click to delete a dish
+        :return:
+        """
         try:
             self.dishes.remove(self.update_dish)
+            # Delete dish in database
             DishRepository().delete(self.update_dish)
             messagebox.showinfo("Success", "Your dish was deleted!")
+            # Remove dish from listbox
             self.edit_dishes.delete(self.lastDishIdx)
         except Exception as ex:
             text = str(ex)
+            # If try to delete a dish, that was ordered
             if ex.args[0] == 1451:
                 text = "You cant delete dish, its was ordered"
             messagebox.showerror("Error", text)
 
     def update_items_select(self, event):
+        """
+        List box select trigger
+        :param event:
+        :return:
+        """
         w = event.widget
         price = 0
         self.update_selected_ingredients = []
+        # Calculate price of selected ingredients
         for i in w.curselection():
             ing = self.update_ingredients[i]
             ing.count = 200

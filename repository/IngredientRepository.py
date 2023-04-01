@@ -4,7 +4,11 @@ from model.Ingredient import Ingredient
 
 class IngredientRepository:
 
-    def get_ingredients(self):
+    def get_ingredients(self) -> list[Ingredient]:
+        """
+        Get all ingredients in storage
+        :return:
+        """
         query = """SELECT * FROM ingredients ORDER BY name"""
 
         ingredients = []

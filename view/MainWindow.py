@@ -45,7 +45,21 @@ class MainWindow:
         GButton_683.place(x=310, y=260, width=130, height=52)
         GButton_683["command"] = self.show_admin_window
 
+        GButton_683 = tk.Button(root)
+        GButton_683["bg"] = "#f0f0f0"
+        ft = tkFont.Font(family='Times', size=10)
+        GButton_683["font"] = ft
+        GButton_683["fg"] = "#000000"
+        GButton_683["justify"] = "center"
+        GButton_683["text"] = "Migrations"
+        GButton_683.place(x=225, y=350, width=130, height=52)
+        GButton_683["command"] = self.show_migrations_window
+
     def show_menu_window(self):
+        """
+        Show order menu window
+        :return:
+        """
         from view.MenuWindow import MenuWindow
 
         self.root.destroy()  # close the current window
@@ -54,9 +68,25 @@ class MainWindow:
         self.root.mainloop()
 
     def show_admin_window(self):
+        """
+        Show admin panel window
+        :return:
+        """
         from view.AdminWindow import AdminWindow
 
         self.root.destroy()  # close the current window
         self.root = tk.Tk()  # create another Tk instance
         self.app = AdminWindow(self.root)  # create Demo2 window
+        self.root.mainloop()
+
+    def show_migrations_window(self):
+        """
+        Show window with migrations
+        :return:
+        """
+        from view.MigrationWindow import MigrationWindow
+
+        self.root.destroy()  # close the current window
+        self.root = tk.Tk()  # create another Tk instance
+        self.app = MigrationWindow(self.root)  # create Demo2 window
         self.root.mainloop()

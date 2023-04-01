@@ -12,6 +12,3 @@ class IngredientService:
         self.ingredients = IngredientRepository().get_ingredients()
 
         return self.ingredients
-
-    def change_count(self, ):
-        pass

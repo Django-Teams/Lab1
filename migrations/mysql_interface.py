@@ -1,4 +1,4 @@
-from . import Messages as msg
+from . import messages as msg
 
 from typing import Iterator
 import mysql.connector as mysql

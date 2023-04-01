@@ -72,13 +72,22 @@ class MenuWindow:
             items.insert("end", dish.name + " " + str(dish.price) + " UAH")
 
     def make_order(self):
+        """
+        Process button to create an order
+        :return:
+        """
         try:
+            # Make order
             OrderService().order(self.order_dishes)
             messagebox.showinfo("Success", "Your order was created!")
         except Exception as ex:
             messagebox.showerror("Error", str(ex))
 
     def show_main_window(self):
+        """
+        Show main menu window
+        :return:
+        """
         from view.MainWindow import MainWindow
 
         self.root.destroy()  # close the current window
@@ -87,9 +96,15 @@ class MenuWindow:
         self.root.mainloop()
 
     def items_select(self, event):
+        """
+        Listbox select trigger
+        :param event:
+        :return:
+        """
         w = event.widget
         price = 0
         self.order_dishes = []
+        # Calculate a price of selected dishes
         for i in w.curselection():
             dish = self.dishes[i]
             price += dish.price

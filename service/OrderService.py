@@ -9,6 +9,7 @@ class OrderService:
     MARKUP = 105
 
     def __init__(self):
+        # Init ingredients storage
         self.ist = IngredientStorage()
 
     def order(self, dishes: list[Dish]) -> Order:
@@ -18,11 +19,14 @@ class OrderService:
         :return:
         """
         name = self.__get_name(dishes)
+        # Check if enough ingredients in the storage
         overflow = self.check_ingredients(dishes)
         if len(overflow) != 0:
             raise ValueError("Недостатньо інградієнтів \"{}\"".format('\" \"'.join([i.name for i in overflow])))
         sum = self.get_dishes_sum(dishes)
+        # Make order object
         order = Order(name, sum, dishes)
+        # Store order in database
         OrderRepository().create(order, self.ist.to_update())
 
         return order
@@ -48,7 +52,13 @@ class OrderService:
         return ", ".join(names)
 
     def check_ingredients(self, dishes: list) -> list[Dish]:
+        """
+        Calculate ingredient expense and return list with insufficient ingredients
+        :param dishes:
+        :return:
+        """
         storage = {}
+        # Generate dict with ingredients and its amount in dishes
         for dish in dishes:
             for ing, count in dish.ingredients:
                 if ing.idx in storage:
@@ -57,7 +67,7 @@ class OrderService:
                     storage[ing.idx] = count * dish.count
 
         overflow = []
-
+        # Checking whether there are enough ingredients to prepare a dish
         for idx, amount in storage.items():
             if self.ist.storage[idx].count < amount:
                 overflow.append(self.ist.storage[idx])
@@ -72,6 +82,7 @@ class OrderService:
         :return:
         """
         amount = 0
+        # Calculate pricce of dishes
         for dish in dishes:
             amount += self.get_dish_price(dish) * dish.count
         return amount
@@ -83,6 +94,8 @@ class OrderService:
         :return:
         """
         price = 0
+        # Calculate price of the dish
+        # Sum all ingredients price and amount, add markup
         for ing, count in dish.ingredients:
             price += round((ing.price * count / 1000) * (100 + self.MARKUP) / 100)
 

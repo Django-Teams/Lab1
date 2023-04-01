@@ -1,4 +1,4 @@
-from . import Messages as msg
+from . import messages as msg
 
 from datetime import datetime
 from typing import Iterator
